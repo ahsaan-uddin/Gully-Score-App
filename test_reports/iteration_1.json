@@ -1,0 +1,32 @@
+{
+  "summary": "Frontend-only manual + Playwright testing of GullyScore Expo web preview at 390x844 mobile viewport. End-to-end flow verified: Dashboard (dark default + demo match + theme toggle), New Match setup (players/overs chips, team inputs, toss), openers modal, Live scoring (runs 0/1/2/3/4/6, wide/no ball/bye/leg bye, wicket, undo, over completion -> newbowl modal), innings transition with target box and chase-banner, end-of-match modal -> Result page (result-text, top-scorer, best-bowler, view-scorecard-button) -> Full Scorecard (both innings batting + bowling), and History screen. No React Native red-screen errors. Console warnings: deprecated shadow* and pointerEvents style props (non-blocking RN-web warnings).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Live", "issues": ["Header score block + chase banner is tall on small phones; functional but could be more compact"]}
+    ],
+    "react_native_issues": [
+      {"component": "RN-Web style props", "issue": "Console warnings: '\"shadow*\" style props are deprecated. Use \"boxShadow\"'. Affects dashboard CTA shadow. Reference: /app/frontend/app/index.tsx:277-281 (ctaButton shadow*)."},
+      {"component": "RN-Web pointerEvents", "issue": "Console warning: 'props.pointerEvents is deprecated. Use style.pointerEvents'. Likely emitted by Modal/Touchable internals from RNW; if found in custom code, move pointerEvents into style."}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Migrate shadow* style props on TouchableOpacity in /app/frontend/app/index.tsx (ctaButton style) to boxShadow for RN-Web (and any other shadowColor/shadowOpacity/shadowRadius/shadowOffset usages). Keep elevation for Android.",
+    "Audit any custom pointerEvents prop usage; move into style if found.",
+    "Consider compacting the Live header on small viewports (score row + chase banner can crowd the pad on 390x844 with safe-area)."
+  ],
+  "critical_code_review_comments": [
+    "live.tsx innings memo has a redundant branch: it returns innings2 in both `closed` and `!closed` cases before falling to innings1 - the second branch is dead code (line 80-86). Harmless but should be simplified.",
+    "Snapshot stack in live.tsx grows unbounded per ball; consider capping to last N (e.g., 60) to prevent memory bloat in long matches."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "seed_data_creation": "Used app's built-in seedDemoIfNeeded (demo_match_1). For E2E I cleared localStorage and ran a fresh 2-over, 7-a-side match.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "App is fully offline (AsyncStorage / localStorage in web). Clear localStorage before E2E. Mobile viewport 390x844. Striker/nonstriker/bowler chips live inside horizontally-scrollable rows inside a bottom sheet modal; Playwright force=true alone fails with 'outside viewport' - use JS click via element.scrollIntoView({block:'center'}) + .click() instead.",
+  "rca_of_issue": "No bugs identified."
+}
