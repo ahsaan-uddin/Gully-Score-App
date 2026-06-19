@@ -43,6 +43,7 @@ export default function SetupScreen() {
   const [tossWinnerIdx, setTossWinnerIdx] = useState<0 | 1>(0);
   const [tossDecision, setTossDecision] = useState<"bat" | "bowl">("bat");
   const [tossFlipMsg, setTossFlipMsg] = useState<string | null>(null);
+  const [tossMode, setTossMode] = useState<"virtual" | "pitch">("virtual");
 
   const [openersModal, setOpenersModal] = useState(false);
   const [strikerIdx, setStrikerIdx] = useState<number>(0);
@@ -281,42 +282,97 @@ export default function SetupScreen() {
 
         {/* Toss */}
         <Section title="Toss" colors={colors}>
-          {/* Virtual coin flip */}
-          <TouchableOpacity
-            testID="coin-flip-button"
-            activeOpacity={0.85}
-            onPress={() => {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-              const winner = (Math.random() < 0.5 ? 0 : 1) as 0 | 1;
-              setTossWinnerIdx(winner);
-              const teamName =
-                winner === 0
-                  ? (teamA.name.trim() || "Team A")
-                  : (teamB.name.trim() || "Team B");
-              setTossFlipMsg(`${teamName} won the toss`);
-            }}
+          {/* Mode segmented control */}
+          <View
             style={[
-              styles.coinBtn,
-              { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
+              styles.segmented,
+              { backgroundColor: colors.surface, borderColor: colors.border },
             ]}
           >
-            <Ionicons name="ellipse" size={20} color={colors.warning} />
-            <Text style={[styles.coinBtnText, { color: colors.textPrimary }]}>
-              Flip Coin (Virtual)
-            </Text>
-          </TouchableOpacity>
-          {tossFlipMsg && (
-            <View
-              testID="coin-flip-result"
-              style={[
-                styles.coinResult,
-                { backgroundColor: colors.primaryMuted, borderColor: colors.primary },
-              ]}
+            {(
+              [
+                { id: "virtual" as const, label: "Virtual Toss", icon: "ellipse-outline" as const },
+                { id: "pitch" as const, label: "Pitch Toss", icon: "people-outline" as const },
+              ]
+            ).map((m) => {
+              const active = tossMode === m.id;
+              return (
+                <TouchableOpacity
+                  key={m.id}
+                  testID={`toss-mode-${m.id}`}
+                  onPress={() => {
+                    setTossMode(m.id);
+                    setTossFlipMsg(null);
+                  }}
+                  style={[
+                    styles.segmentedItem,
+                    { backgroundColor: active ? colors.primary : "transparent" },
+                  ]}
+                >
+                  <Ionicons
+                    name={m.icon}
+                    size={16}
+                    color={active ? colors.onPrimary : colors.textSecondary}
+                  />
+                  <Text
+                    style={[
+                      styles.segmentedText,
+                      { color: active ? colors.onPrimary : colors.textSecondary },
+                    ]}
+                  >
+                    {m.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {tossMode === "virtual" ? (
+            <>
+              <TouchableOpacity
+                testID="coin-flip-button"
+                activeOpacity={0.85}
+                onPress={() => {
+                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+                  const winner = (Math.random() < 0.5 ? 0 : 1) as 0 | 1;
+                  setTossWinnerIdx(winner);
+                  const teamName =
+                    winner === 0
+                      ? (teamA.name.trim() || "Team A")
+                      : (teamB.name.trim() || "Team B");
+                  setTossFlipMsg(`${teamName} won the toss`);
+                }}
+                style={[
+                  styles.coinBtn,
+                  { backgroundColor: colors.surfaceElevated, borderColor: colors.border, marginTop: 12 },
+                ]}
+              >
+                <Ionicons name="ellipse" size={20} color={colors.warning} />
+                <Text style={[styles.coinBtnText, { color: colors.textPrimary }]}>
+                  Flip Coin
+                </Text>
+              </TouchableOpacity>
+              {tossFlipMsg && (
+                <View
+                  testID="coin-flip-result"
+                  style={[
+                    styles.coinResult,
+                    { backgroundColor: colors.primaryMuted, borderColor: colors.primary },
+                  ]}
+                >
+                  <Text style={[styles.coinResultText, { color: colors.primary }]}>
+                    {tossFlipMsg}
+                  </Text>
+                </View>
+              )}
+            </>
+          ) : (
+            <Text
+              testID="pitch-toss-hint"
+              style={[styles.pitchHint, { color: colors.textMuted }]}
             >
-              <Text style={[styles.coinResultText, { color: colors.primary }]}>
-                {tossFlipMsg}
-              </Text>
-            </View>
+              Flipped a coin on the ground? Just tap the team that won below.
+            </Text>
           )}
 
           <Text style={[styles.label, { color: colors.textSecondary, marginTop: 14 }]}>
@@ -785,6 +841,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   coinResultText: { fontSize: 14, fontWeight: "800" },
+  segmented: {
+    flexDirection: "row",
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 4,
+    gap: 4,
+    marginTop: 4,
+  },
+  segmentedItem: {
+    flex: 1,
+    height: 40,
+    borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  segmentedText: { fontSize: 13, fontWeight: "800" },
+  pitchHint: {
+    fontSize: 13,
+    fontWeight: "600",
+    marginTop: 12,
+    paddingHorizontal: 4,
+  },
   footer: {
     position: "absolute",
     left: 0,
