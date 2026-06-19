@@ -13,6 +13,7 @@ import {
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/src/theme/ThemeContext";
 import { Team } from "@/src/types/cricket";
@@ -32,6 +33,7 @@ export default function SetupScreen() {
   const insets = useSafeAreaInsets();
 
   const [playersPerSide, setPlayersPerSide] = useState<number>(7);
+  const [playersCustom, setPlayersCustom] = useState<string>("");
   const [overs, setOvers] = useState<number>(5);
   const [oversCustom, setOversCustom] = useState<string>("");
 
@@ -40,6 +42,7 @@ export default function SetupScreen() {
 
   const [tossWinnerIdx, setTossWinnerIdx] = useState<0 | 1>(0);
   const [tossDecision, setTossDecision] = useState<"bat" | "bowl">("bat");
+  const [tossFlipMsg, setTossFlipMsg] = useState<string | null>(null);
 
   const [openersModal, setOpenersModal] = useState(false);
   const [strikerIdx, setStrikerIdx] = useState<number>(0);
@@ -150,10 +153,37 @@ export default function SetupScreen() {
           </Text>
           <ChipRow
             options={PLAYER_PRESETS.map((n) => ({ value: n, label: `${n}` }))}
-            value={playersPerSide}
-            onSelect={(v) => setPlayersPerSide(v as number)}
+            value={playersCustom ? -1 : playersPerSide}
+            onSelect={(v) => {
+              setPlayersPerSide(v as number);
+              setPlayersCustom("");
+            }}
             testIDPrefix="players-chip"
             colors={colors}
+          />
+          <TextInput
+            value={playersCustom}
+            onChangeText={(t) => {
+              const cleaned = t.replace(/[^0-9]/g, "").slice(0, 2);
+              setPlayersCustom(cleaned);
+              const n = parseInt(cleaned, 10);
+              if (Number.isFinite(n) && n >= 2 && n <= 22) {
+                setPlayersPerSide(n);
+              }
+            }}
+            placeholder="Custom players (2 – 22)"
+            keyboardType="number-pad"
+            placeholderTextColor={colors.textMuted}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                color: colors.textPrimary,
+                marginTop: 12,
+              },
+            ]}
+            testID="players-custom-input"
           />
 
           <Text style={[styles.label, { color: colors.textSecondary, marginTop: 16 }]}>
@@ -190,10 +220,13 @@ export default function SetupScreen() {
 
         {/* Teams */}
         <Section title="Team A" colors={colors}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>
+            Team Name
+          </Text>
           <TextInput
             value={teamA.name}
             onChangeText={(name) => setTeamA({ ...teamA, name })}
-            placeholder="Team name"
+            placeholder="e.g., Mohalla XI"
             placeholderTextColor={colors.textMuted}
             style={[
               styles.input,
@@ -201,6 +234,7 @@ export default function SetupScreen() {
                 backgroundColor: colors.surface,
                 borderColor: colors.border,
                 color: colors.textPrimary,
+                marginTop: 6,
               },
             ]}
             testID="team-a-name-input"
@@ -216,10 +250,13 @@ export default function SetupScreen() {
         </Section>
 
         <Section title="Team B" colors={colors}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>
+            Team Name
+          </Text>
           <TextInput
             value={teamB.name}
             onChangeText={(name) => setTeamB({ ...teamB, name })}
-            placeholder="Team name"
+            placeholder="e.g., Galli Tigers"
             placeholderTextColor={colors.textMuted}
             style={[
               styles.input,
@@ -227,6 +264,7 @@ export default function SetupScreen() {
                 backgroundColor: colors.surface,
                 borderColor: colors.border,
                 color: colors.textPrimary,
+                marginTop: 6,
               },
             ]}
             testID="team-b-name-input"
@@ -243,7 +281,45 @@ export default function SetupScreen() {
 
         {/* Toss */}
         <Section title="Toss" colors={colors}>
-          <Text style={[styles.label, { color: colors.textSecondary }]}>
+          {/* Virtual coin flip */}
+          <TouchableOpacity
+            testID="coin-flip-button"
+            activeOpacity={0.85}
+            onPress={() => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+              const winner = (Math.random() < 0.5 ? 0 : 1) as 0 | 1;
+              setTossWinnerIdx(winner);
+              const teamName =
+                winner === 0
+                  ? (teamA.name.trim() || "Team A")
+                  : (teamB.name.trim() || "Team B");
+              setTossFlipMsg(`${teamName} won the toss`);
+            }}
+            style={[
+              styles.coinBtn,
+              { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
+            ]}
+          >
+            <Ionicons name="ellipse" size={20} color={colors.warning} />
+            <Text style={[styles.coinBtnText, { color: colors.textPrimary }]}>
+              Flip Coin (Virtual)
+            </Text>
+          </TouchableOpacity>
+          {tossFlipMsg && (
+            <View
+              testID="coin-flip-result"
+              style={[
+                styles.coinResult,
+                { backgroundColor: colors.primaryMuted, borderColor: colors.primary },
+              ]}
+            >
+              <Text style={[styles.coinResultText, { color: colors.primary }]}>
+                {tossFlipMsg}
+              </Text>
+            </View>
+          )}
+
+          <Text style={[styles.label, { color: colors.textSecondary, marginTop: 14 }]}>
             Won by
           </Text>
           <View style={{ flexDirection: "row", gap: 10, marginTop: 8 }}>
@@ -251,7 +327,10 @@ export default function SetupScreen() {
               <TouchableOpacity
                 key={idx}
                 testID={`toss-winner-${idx}`}
-                onPress={() => setTossWinnerIdx(idx as 0 | 1)}
+                onPress={() => {
+                  setTossWinnerIdx(idx as 0 | 1);
+                  setTossFlipMsg(null);
+                }}
                 style={[
                   styles.bigPill,
                   {
@@ -686,6 +765,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   bigPillText: { fontSize: 15, fontWeight: "800" },
+  coinBtn: {
+    height: 52,
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    paddingHorizontal: 14,
+  },
+  coinBtnText: { fontSize: 15, fontWeight: "800" },
+  coinResult: {
+    marginTop: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: "center",
+  },
+  coinResultText: { fontSize: 14, fontWeight: "800" },
   footer: {
     position: "absolute",
     left: 0,
