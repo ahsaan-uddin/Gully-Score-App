@@ -1,0 +1,131 @@
+{
+  "theme": "Dark Default (with Light toggle)",
+  "archetype": "Archetype 2 (The Performance Pro)",
+  "colors": {
+    "dark": {
+      "background": "#0A0A0A",
+      "surface": "#171717",
+      "surface_elevated": "#262626",
+      "border": "#262626",
+      "text_primary": "#FFFFFF",
+      "text_secondary": "#A3A3A3",
+      "text_muted": "#737373",
+      "primary": "#00E676",
+      "primary_muted": "rgba(0, 230, 118, 0.15)",
+      "danger": "#FF3B30",
+      "danger_muted": "rgba(255, 59, 48, 0.15)",
+      "warning": "#F5A623",
+      "warning_muted": "rgba(245, 166, 35, 0.15)",
+      "accent_blue": "#007AFF"
+    },
+    "light": {
+      "background": "#F9FAFB",
+      "surface": "#FFFFFF",
+      "surface_elevated": "#F3F4F6",
+      "border": "#E5E7EB",
+      "text_primary": "#111827",
+      "text_secondary": "#4B5563",
+      "text_muted": "#9CA3AF",
+      "primary": "#059669",
+      "primary_muted": "rgba(5, 150, 105, 0.1)",
+      "danger": "#DC2626",
+      "danger_muted": "rgba(220, 38, 38, 0.1)",
+      "warning": "#D97706",
+      "warning_muted": "rgba(217, 119, 6, 0.1)",
+      "accent_blue": "#2563EB"
+    }
+  },
+  "typography": {
+    "heading_font": "Outfit",
+    "body_font": "DM Sans",
+    "scale": {
+      "h1": "text-4xl sm:text-5xl font-black tracking-tight",
+      "h2": "text-2xl sm:text-3xl font-bold tracking-tight",
+      "h3": "text-xl font-bold",
+      "body": "text-base font-medium",
+      "small": "text-sm font-medium tracking-wide",
+      "score_massive": "text-5xl sm:text-[64px] font-black leading-none tracking-tighter"
+    }
+  },
+  "layout_and_spacing": {
+    "container_padding": "p-4",
+    "card_padding": "p-4",
+    "card_radius": "rounded-2xl",
+    "button_radius": "rounded-xl",
+    "score_pad_height": "min-h-[280px]",
+    "bottom_spacing": "pb-8"
+  },
+  "components": {
+    "dashboard_cards": {
+      "description": "Cards for new match CTA and recent matches list.",
+      "specs": "bg-surface rounded-2xl p-5 border border-border shadow-sm flex flex-col gap-2",
+      "new_match_cta": "bg-primary text-black dark:text-black text-white h-16 rounded-xl flex items-center justify-center font-bold text-xl active:scale-95 transition-transform"
+    },
+    "scoring_buttons_grid": {
+      "description": "Bottom-aligned control grid for quick run inputs.",
+      "layout": "Grid with 3 columns, gap-3.",
+      "run_button": "bg-surface_elevated text-text_primary h-16 rounded-xl flex items-center justify-center text-2xl font-bold active:bg-primary active:text-black",
+      "boundary_button": "bg-primary_muted text-primary border border-primary/30 h-16 rounded-xl flex items-center justify-center text-2xl font-black active:bg-primary active:text-black",
+      "wicket_button": "col-span-3 h-16 bg-danger_muted text-danger border border-danger/40 rounded-xl text-xl font-bold uppercase tracking-widest active:bg-danger active:text-white",
+      "extras_row": "flex gap-2 mt-3",
+      "extras_button": "flex-1 bg-surface h-12 rounded-lg text-sm font-bold text-text_secondary border border-border active:bg-surface_elevated"
+    },
+    "batsmen_card": {
+      "description": "Displays active batsmen. Striker highlighted.",
+      "specs": "bg-surface rounded-2xl p-4 border border-border flex flex-col gap-3",
+      "striker_row": "flex justify-between items-center",
+      "striker_indicator": "w-2 h-2 rounded-full bg-primary ml-2",
+      "stats": "text-text_secondary text-sm font-medium font-mono"
+    },
+    "ball_timeline_chips": {
+      "description": "Horizontal scrollable row of recent ball outcomes (Over timeline).",
+      "specs": "flex gap-2 overflow-x-auto py-2 px-1 scrollbar-hide",
+      "chip_dot": "min-w-[40px] h-10 rounded-full border border-border flex items-center justify-center text-text_primary font-bold bg-surface",
+      "chip_boundary": "min-w-[40px] h-10 rounded-full bg-primary text-black dark:text-black text-white font-black shadow-[0_0_8px_rgba(0,230,118,0.4)]",
+      "chip_wicket": "min-w-[40px] h-10 rounded-full bg-danger text-white font-black",
+      "chip_extra": "min-w-[40px] h-10 rounded-full bg-warning_muted border border-warning text-warning font-bold text-xs"
+    },
+    "result_podium": {
+      "description": "Match result banner and MVP showcases on the result screen.",
+      "specs": "bg-surface border border-border rounded-2xl p-6 flex flex-col items-center text-center mt-6",
+      "winner_text": "text-primary text-3xl font-black mb-1 tracking-tight",
+      "mvp_card": "bg-surface_elevated rounded-xl p-4 w-full flex flex-row items-center gap-4 mt-4 border border-border/50"
+    },
+    "second_innings_banner": {
+      "description": "Target/Required runs banner during 2nd innings.",
+      "specs": "bg-accent_blue text-white w-full py-3 px-4 rounded-xl flex justify-between items-center font-bold text-sm shadow-md"
+    }
+  },
+  "media": {
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1750716413756-b66624b64ce4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MDV8MHwxfHNlYXJjaHwxfHxjcmlja2V0JTIwc3RhZGl1bSUyMG5pZ2h0JTIwbGlnaHRzfGVufDB8fHx8MTc4MTg4NjM4NHww&ixlib=rb-4.1.0&q=85",
+        "category": "dashboard_background",
+        "description": "Cricket stadium filled with spectators at night. Use as a faded, low-opacity background for the dashboard hero section."
+      },
+      {
+        "url": "https://images.pexels.com/photos/34563722/pexels-photo-34563722.png?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "default_match_thumbnail",
+        "description": "Close-up of a vibrant red cricket ball on grass. Good for generic match thumbnails in the history list."
+      }
+    ],
+    "icons": {
+      "library": "@expo/vector-icons",
+      "recommended_set": "LucideIcons or Ionicons"
+    }
+  },
+  "accessibility_and_testing": {
+    "data_testid_rules": "All interactive elements MUST include a `data-testid` attribute (or `testID` mapped correctly in Expo). E.g., data-testid='run-button-4'.",
+    "contrast": "Text over backgrounds must meet WCAG AA standards. Use layered grays instead of pure black for components.",
+    "touch_targets": "Minimum 56pt height/width for all scoring actions to ensure easy one-handed street cricket usage.",
+    "feedback": "Ensure haptic feedback (Haptics API) or visual flash is applied to scoring button presses."
+  },
+  "instructions_to_main_agent": [
+    "Build the app as a mobile-first Expo React Native app using NativeWind/Tailwind styling.",
+    "Implement the UI using Archetype 2 (The Performance Pro). Default to Dark mode (layered grays) with a sleek, athletic, high-contrast aesthetic.",
+    "Layout constraint for Live Scoring: Keep the score header fixed at the top, scrollable timeline/cards in the middle, and the scoring button pad anchored strictly to the bottom for thumb reach.",
+    "Do not use generic emoji for icons; strictly import and use @expo/vector-icons (Lucide or Ionicons).",
+    "Ensure 'data-testid' properties are applied consistently on all inputs, buttons, and navigable cards to satisfy testing criteria.",
+    "For typography, configure Google Fonts for 'Outfit' (Headings) and 'DM Sans' (Body). If Expo Google Fonts are not readily loadable, fall back to System Sans with appropriate weights, but attempt to load Outfit."
+  ]
+}
