@@ -130,6 +130,59 @@ export default function Dashboard() {
           </Text>
         </TouchableOpacity>
 
+        {/* Quick actions */}
+        <View style={styles.quickRow}>
+          <TouchableOpacity
+            testID="quick-players-button"
+            activeOpacity={0.85}
+            onPress={() => router.push("/players")}
+            style={[
+              styles.quickCard,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
+            <View
+              style={[
+                styles.quickIcon,
+                { backgroundColor: colors.primaryMuted, borderColor: colors.primary },
+              ]}
+            >
+              <Ionicons name="stats-chart" size={20} color={colors.primary} />
+            </View>
+            <Text style={[styles.quickTitle, { color: colors.textPrimary }]}>
+              Player Stats
+            </Text>
+            <Text style={[styles.quickDesc, { color: colors.textSecondary }]} numberOfLines={2}>
+              Lifetime runs, wickets, SR & more
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            testID="quick-backup-button"
+            activeOpacity={0.85}
+            onPress={() => router.push("/backup")}
+            style={[
+              styles.quickCard,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
+            <View
+              style={[
+                styles.quickIcon,
+                { backgroundColor: colors.warningMuted, borderColor: colors.warning },
+              ]}
+            >
+              <Ionicons name="share-social-outline" size={20} color={colors.warning} />
+            </View>
+            <Text style={[styles.quickTitle, { color: colors.textPrimary }]}>
+              Backup &amp; Share
+            </Text>
+            <Text style={[styles.quickDesc, { color: colors.textSecondary }]} numberOfLines={2}>
+              Export / import data across devices
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Recent matches */}
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
@@ -278,6 +331,30 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   ctaText: { fontSize: 18, fontWeight: "800", letterSpacing: 0.2 },
+  quickRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: -8,
+    marginBottom: 24,
+  },
+  quickCard: {
+    flex: 1,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 14,
+    gap: 4,
+  },
+  quickIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 6,
+  },
+  quickTitle: { fontSize: 14, fontWeight: "800" },
+  quickDesc: { fontSize: 11, fontWeight: "600", lineHeight: 15 },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
