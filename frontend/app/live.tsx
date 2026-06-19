@@ -124,7 +124,11 @@ export default function LiveScreen() {
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    setSnapshotStack((s) => [...s, deepClone(match)]);
+    setSnapshotStack((s) => {
+      const next = [...s, deepClone(match)];
+      // Cap undo history to avoid unbounded growth on long innings.
+      return next.length > 60 ? next.slice(next.length - 60) : next;
+    });
 
     const m = deepClone(match);
     const target = m.innings2 ? m.target : null;
