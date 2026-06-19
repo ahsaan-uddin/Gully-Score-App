@@ -2,6 +2,7 @@
 
 import { Match } from "@/src/types/cricket";
 import { storage } from "@/src/utils/storage";
+import { seedDemoPlayersIfNeeded, bumpPlayers } from "@/src/storage/players_pool";
 
 const KEY_MATCHES_JSON = "gully.matches.json";
 const KEY_CURRENT_MATCH_ID = "gully.currentMatchId";
@@ -27,6 +28,19 @@ export async function upsertMatch(match: Match): Promise<void> {
   if (idx >= 0) list[idx] = match;
   else list.unshift(match);
   await saveAllMatches(list);
+  // Keep player pool fresh with anyone who shows up in a saved match.
+  const names = [
+    ...match.teams[0].players,
+    ...match.teams[1].players,
+    match.jokerPlayerName ?? "",
+  ].filter((n) => n.trim().length > 0);
+  if (names.length > 0) {
+    try {
+      await bumpPlayers(names);
+    } catch {
+      // pool is best-effort; never block match save.
+    }
+  }
 }
 
 export async function getMatch(id: string): Promise<Match | null> {
@@ -143,5 +157,6 @@ export async function seedDemoIfNeeded(): Promise<void> {
     matches.unshift(demoMatch());
     await saveAllMatches(matches);
   }
+  await seedDemoPlayersIfNeeded();
   await storage.setItem(KEY_DEMO_SEEDED, true);
 }

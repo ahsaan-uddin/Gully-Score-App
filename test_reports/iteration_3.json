@@ -1,0 +1,39 @@
+{
+  "summary": "Frontend-only smoke test of GullyScore iteration 3 (Quick Match rename + Series + Manage Teams + Smart Player Pool + Joker + Match Rules). Dashboard, Series create + detail, Manage Teams CRUD, Setup screen player add + suggestion chips (15 chips from seeded demo pool) + joker section + match rules all render correctly with the expected testIDs. Could NOT verify Live-screen rules behaviour (freehit-banner / wicket-disabled / nonstriker-row hidden / extra-b extra-lb toggling) because the start-match-button stayed disabled after a 5+2 odd roster with custom playersPerSide=2 and a random joker — so navigation to /live never happened. One deprecation console warning: props.pointerEvents is deprecated.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "setup.tsx start-match-button",
+        "issue": "Start Match button remained disabled after typing players-custom-input='2' (sets playersPerSide=2), adding 5 players to Team A + 2 to Team B (both teams.players.length >= 2), and tapping joker-random-button. canStart formula: teamAName && teamBName && aReady && bReady && (!needJoker || jokerName) — all should be true. Possibly joker-random-button does not actually persist jokerName (state not reflected) OR the custom-players TextInput updates `playersCustom` string but the disabled visual still shows because aReady/bReady was evaluated before re-render. Needs E1 to verify whether jokerName is set after pressing joker-random-button on web (Haptics may swallow on web but .catch is in place). Without progression to /live, the live-screen rule-honouring assertions (freehit-banner, wicket disabled on free hit, hidden nonstriker-row, hidden extra-b/lb) could not be validated end-to-end.",
+        "testID": "start-match-button",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      { "screen": "setup", "issues": ["Counter shows '5 / 2 added' (over-filled) when custom playersPerSide is reduced after adding players; UX should either cap added players or warn. Currently the engine still treats team as ready because check is >=, not ==."] }
+    ],
+    "react_native_issues": [
+      { "component": "global console", "issue": "Console warning: 'props.pointerEvents is deprecated. Use style.pointerEvents.' Likely from a child library or own component spreading pointerEvents prop. Reference: emitted while on /setup." }
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_3.json"],
+  "action_items": [
+    "Investigate why start-match-button remains disabled with 5+2 odd roster, custom playersPerSide=2, joker random tapped. Suspect joker-random-button isn't persisting jokerName, or canStart re-render path missing.",
+    "Consider preventing the 'over-filled' state when user reduces playersPerSide below current roster size, or trim/disable adds.",
+    "Audit components spreading `pointerEvents` prop and migrate to `style.pointerEvents` to silence the deprecation warning."
+  ],
+  "critical_code_review_comments": [
+    "setup.tsx onStartTap uses `1 % playersPerSide` which equals 0 when playersPerSide===1, producing striker==nonStriker; combined with !rules.singleBatter that's invalid. Edge-case only (custom 1-player side) but worth guarding.",
+    "teams.tsx onRemove uses `captainIdx >= draftPlayers.length - 1` after filter — `draftPlayers` here is the pre-removal array; this check resets captain on the last index even when it shouldn't. Minor.",
+    "live.tsx `isInningsTwo` logic has dead branch: both `if (match.innings2 && !match.innings2.closed)` and `if (match.innings2 && match.innings2.closed)` return innings2 — the second condition is unreachable in a meaningful way; simplify."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "n/a", "frontend": "~80%" },
+  "seed_data_creation": "Created via UI during test: 1 series 'TEST Cup' (Alpha vs Bravo, best of 5), 1 saved team 'TEST Team' with P1+P2. Demo player pool (15 names) auto-seeds on first launch.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Use mobile viewport 390x844. Clear localStorage before each scenario via page.evaluate('() => localStorage.clear()'). To reach /live deterministically with odd roster, prefer setting playersPerSide BEFORE adding players (e.g., tap players-chip-5, then add exactly 5+2). The current iteration_3 run added players first, then customised — leading to over-filled teams. After confirming canStart, click start-match-button → confirm-openers-button → bowler picker auto-opens on /live (testIDs: newbowl-{idx}). Then verify extra-nb → freehit-banner and wicket-button disabled (aria-disabled='true').",
+  "rca_of_issue": "start-match-button disabled despite seemingly valid roster: most likely jokerName isn't being persisted by joker-random-button on the web build (Haptics.selectionAsync may not be the cause since it has .catch). Recommend logging jokerName state in setup.tsx, or asserting via DOM that the joker-picked-row appears after tapping joker-random-button. Re-run after E1 confirms joker pickRandomJoker sets state."
+}

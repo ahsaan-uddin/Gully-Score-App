@@ -4,9 +4,11 @@ import {
   Ball,
   BatsmanStat,
   BowlerStat,
+  DEFAULT_RULES,
   Extra,
   Innings,
   Match,
+  MatchRules,
   Team,
 } from "@/src/types/cricket";
 
@@ -98,6 +100,11 @@ export interface ApplyBallResult {
 /**
  * Apply a single delivery to the innings (immutably). Caller passes a deep-cloned
  * innings; this function mutates it and returns flags for UI flow.
+ *
+ * Rules supported:
+ *  - rules.wideMode: 'run_and_reball' (default) → wide adds 1 run; 'reball_only' → wide adds 0 runs.
+ *  - rules.freeHit: no-ball arms a free hit for the next delivery (wickets disabled on the free hit, except run-outs which aren't modelled here).
+ *  - rules.singleBatter: no strike rotation, no end-of-over swap.
  */
 export function applyBallMutable(
   innings: Innings,
@@ -105,8 +112,25 @@ export function applyBallMutable(
   oversTotal: number,
   playersPerSide: number,
   target: number | null,
+  rules: MatchRules = DEFAULT_RULES,
 ): ApplyBallResult {
-  const { runs, extra, wicket } = input;
+  let { runs } = input;
+  const { extra, wicket: rawWicket } = input;
+
+  // Free-hit handling: capture current free-hit status, then clear (it only protects the current ball).
+  const isFreeHit = !!innings.freeHitNext;
+  if (innings.freeHitNext) innings.freeHitNext = false;
+
+  let wicket = rawWicket;
+  if (isFreeHit && wicket) {
+    // On a free-hit, conventional wickets don't count.
+    wicket = false;
+  }
+
+  // Wide reball-only mode: 0 runs added, still illegal.
+  if (extra === "wd" && rules.wideMode === "reball_only") {
+    runs = 0;
+  }
 
   const strikerIdx = innings.strikerIdx;
   const nonStrikerIdx = innings.nonStrikerIdx;
@@ -119,6 +143,10 @@ export function applyBallMutable(
 
   // Score
   innings.score += runs;
+  // Wide-mode reball_only: still credit the +1 penalty? Per user spec: 'Reball only' means just bowl again, no run. So no +1.
+  if (extra === "wd" && rules.wideMode === "run_and_reball") {
+    // already credited via runs (we pass runs=1 from UI for wides)
+  }
 
   // Batsman: credit runs only on normal deliveries (no extra). Bye/LegBye = no batsman runs.
   const striker = innings.batsmen[strikerIdx];
@@ -128,13 +156,11 @@ export function applyBallMutable(
     if (runs === 4) striker.fours += 1;
     if (runs === 6) striker.sixes += 1;
   }
-  // Batsman ball count: counts on legal deliveries (any legal delivery, including byes/leg byes).
   if (legal) {
     striker.balls += 1;
   }
 
-  // Bowler: legal balls counted on legal deliveries. Runs charged: actual runs on wd/nb deliveries
-  // and normal runs on legitimate deliveries. Byes / leg-byes NOT charged to bowler.
+  // Bowler accounting.
   let bowler = innings.bowlers[bowlerIdx];
   if (!bowler) {
     bowler = emptyBowlerStat(bowlerIdx);
@@ -142,7 +168,7 @@ export function applyBallMutable(
   }
   if (legal) bowler.legalBalls += 1;
   if (extra === "wd" || extra === "nb") {
-    bowler.runs += runs; // 1 (penalty) for now; we only allow 1 per tap
+    bowler.runs += runs;
   } else if (extra === null) {
     bowler.runs += runs;
   }
@@ -154,13 +180,12 @@ export function applyBallMutable(
     bowler.wickets += 1;
   }
 
-  // Strike rotation: rotate on odd runs (1, 3, 5). On 5? cricket: yes. We'll support 0..6.
-  if (runs % 2 === 1) {
+  // Strike rotation: rotate on odd runs (only when not single-batter).
+  if (!rules.singleBatter && runs % 2 === 1) {
     innings.strikerIdx = nonStrikerIdx;
     innings.nonStrikerIdx = strikerIdx;
   }
 
-  // Record ball history (snapshot of who was on strike at the moment)
   const ball: Ball = {
     runs,
     extra,
@@ -169,11 +194,17 @@ export function applyBallMutable(
     nonStrikerIdx,
     bowlerIdx,
     legal,
+    freeHit: isFreeHit || undefined,
   };
   innings.balls.push(ball);
 
-  // Mirror legal-ball count on the innings (single source of truth for over math).
+  // Mirror legal-ball count on the innings.
   if (legal) innings.legalBalls += 1;
+
+  // Arm next-ball free hit if rules.freeHit and this was a no-ball.
+  if (extra === "nb" && rules.freeHit) {
+    innings.freeHitNext = true;
+  }
 
   // End-of-innings checks
   const maxWickets = playersPerSide - 1;
@@ -204,12 +235,13 @@ export function applyBallMutable(
     innings.legalBalls > 0 &&
     innings.legalBalls % 6 === 0
   ) {
-    // Over completed -> swap strike, ask for next bowler
     innings.previousBowlerIdx = bowlerIdx;
     innings.currentBowlerIdx = null;
-    const tmp = innings.strikerIdx;
-    innings.strikerIdx = innings.nonStrikerIdx;
-    innings.nonStrikerIdx = tmp;
+    if (!rules.singleBatter) {
+      const tmp = innings.strikerIdx;
+      innings.strikerIdx = innings.nonStrikerIdx;
+      innings.nonStrikerIdx = tmp;
+    }
     needsNewBowler = true;
   }
 
@@ -263,6 +295,9 @@ export function createMatch(input: {
   strikerIdx: number;
   nonStrikerIdx: number;
   bowlerIdx: number;
+  rules?: MatchRules;
+  jokerPlayerName?: string;
+  seriesId?: string;
 }): Match {
   const firstBattingIdx: 0 | 1 =
     input.tossDecision === "bat"
@@ -291,6 +326,9 @@ export function createMatch(input: {
     winnerIdx: null,
     resultText: null,
     target: null,
+    rules: input.rules ?? DEFAULT_RULES,
+    jokerPlayerName: input.jokerPlayerName,
+    seriesId: input.seriesId,
   };
 }
 

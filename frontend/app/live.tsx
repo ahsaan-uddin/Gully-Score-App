@@ -34,9 +34,11 @@ import {
 import {
   getCurrentMatchId,
   getMatch,
+  loadAllMatches,
   setCurrentMatchId,
   upsertMatch,
 } from "@/src/storage/matches";
+import { attachMatchToSeries } from "@/src/storage/series";
 
 export default function LiveScreen() {
   const { colors } = useTheme();
@@ -139,6 +141,7 @@ export default function LiveScreen() {
       m.oversTotal,
       m.playersPerSide,
       target,
+      m.rules,
     );
     m.updatedAt = new Date().toISOString();
 
@@ -152,6 +155,15 @@ export default function LiveScreen() {
       // Second innings closed -> finalize
       finalizeResult(m);
       setMatch(m);
+      // If part of a series, attach now (best-effort, fire-and-forget).
+      if (m.seriesId) {
+        loadAllMatches()
+          .then((all) => {
+            const list = all.some((x) => x.id === m.id) ? all : [m, ...all];
+            return attachMatchToSeries(m.seriesId!, m, list);
+          })
+          .catch(() => {});
+      }
       setEndModal(true);
       return;
     }
@@ -218,6 +230,12 @@ export default function LiveScreen() {
       chaseMsg = `Need ${need} run${need === 1 ? "" : "s"} in ${ballsLeft} ball${ballsLeft === 1 ? "" : "s"}`;
     }
   }
+
+  const rules = match.rules;
+  const singleBatter = !!rules?.singleBatter;
+  const allowByes = rules ? rules.allowByes : true;
+  const allowLegByes = rules ? rules.allowLegByes : true;
+  const freeHitArmed = !!innings.freeHitNext;
 
   // ---- Render ----
   return (
@@ -295,6 +313,16 @@ export default function LiveScreen() {
             <Text style={styles.chaseText}>{chaseMsg}</Text>
           </View>
         )}
+
+        {freeHitArmed && (
+          <View
+            testID="freehit-banner"
+            style={[styles.chaseBanner, { backgroundColor: colors.warning }]}
+          >
+            <Ionicons name="flash" size={16} color="#fff" />
+            <Text style={styles.chaseText}>FREE HIT • Wicket disabled this ball</Text>
+          </View>
+        )}
       </View>
 
       {/* Scrollable content */}
@@ -320,7 +348,7 @@ export default function LiveScreen() {
               testID="striker-row"
             />
           )}
-          {nonStriker && (
+          {!singleBatter && nonStriker && (
             <BatsmanRow
               colors={colors}
               name={battingTeam.players[nonStriker.playerIdx]}
@@ -388,12 +416,12 @@ export default function LiveScreen() {
         <View style={styles.extrasRow}>
           {(
             [
-              { label: "Wd", extra: "wd" as Extra, testID: "extra-wd" },
-              { label: "Nb", extra: "nb" as Extra, testID: "extra-nb" },
-              { label: "B", extra: "b" as Extra, testID: "extra-b" },
-              { label: "Lb", extra: "lb" as Extra, testID: "extra-lb" },
+              { label: "Wd", extra: "wd" as Extra, testID: "extra-wd", enabled: true },
+              { label: "Nb", extra: "nb" as Extra, testID: "extra-nb", enabled: true },
+              { label: "B", extra: "b" as Extra, testID: "extra-b", enabled: allowByes },
+              { label: "Lb", extra: "lb" as Extra, testID: "extra-lb", enabled: allowLegByes },
             ]
-          ).map((e) => (
+          ).filter((e) => e.enabled).map((e) => (
             <TouchableOpacity
               key={e.label}
               testID={e.testID}
@@ -452,10 +480,15 @@ export default function LiveScreen() {
         <TouchableOpacity
           testID="wicket-button"
           onPress={onWicket}
+          disabled={freeHitArmed}
           activeOpacity={0.85}
           style={[
             styles.wicketBtn,
-            { backgroundColor: colors.dangerMuted, borderColor: colors.danger },
+            {
+              backgroundColor: colors.dangerMuted,
+              borderColor: colors.danger,
+              opacity: freeHitArmed ? 0.35 : 1,
+            },
           ]}
         >
           <Ionicons name="alert-circle" size={20} color={colors.danger} />

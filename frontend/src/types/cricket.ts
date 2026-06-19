@@ -2,6 +2,24 @@
 
 export type Extra = "wd" | "nb" | "b" | "lb" | null;
 
+export type WideMode = "run_and_reball" | "reball_only";
+
+export interface MatchRules {
+  singleBatter: boolean;
+  wideMode: WideMode;
+  freeHit: boolean;
+  allowByes: boolean;
+  allowLegByes: boolean;
+}
+
+export const DEFAULT_RULES: MatchRules = {
+  singleBatter: false,
+  wideMode: "run_and_reball",
+  freeHit: true,
+  allowByes: true,
+  allowLegByes: true,
+};
+
 export interface Ball {
   /** Runs added to the score on this delivery (batsman runs OR extra). */
   runs: number;
@@ -17,6 +35,8 @@ export interface Ball {
   bowlerIdx: number;
   /** Counts as a legal delivery (towards 6-balls-per-over). */
   legal: boolean;
+  /** True if this delivery was a free hit. */
+  freeHit?: boolean;
 }
 
 export interface BatsmanStat {

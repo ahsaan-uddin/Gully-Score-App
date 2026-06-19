@@ -124,13 +124,45 @@ export default function Dashboard() {
           onPress={() => router.push("/setup")}
           style={[styles.ctaButton, { backgroundColor: colors.primary }]}
         >
-          <Ionicons name="add-circle" size={26} color={colors.onPrimary} />
+          <Ionicons name="flash" size={24} color={colors.onPrimary} />
           <Text style={[styles.ctaText, { color: colors.onPrimary }]}>
-            New Match
+            Quick Match
           </Text>
         </TouchableOpacity>
 
         {/* Quick actions */}
+        <View style={styles.quickRow}>
+          <TouchableOpacity
+            testID="quick-series-button"
+            activeOpacity={0.85}
+            onPress={() => router.push("/series")}
+            style={[styles.quickCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          >
+            <View style={[styles.quickIcon, { backgroundColor: colors.dangerMuted, borderColor: colors.danger }]}>
+              <Ionicons name="trophy-outline" size={20} color={colors.danger} />
+            </View>
+            <Text style={[styles.quickTitle, { color: colors.textPrimary }]}>Series</Text>
+            <Text style={[styles.quickDesc, { color: colors.textSecondary }]} numberOfLines={2}>
+              Best of 3, 5, 7 — track wins
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            testID="quick-teams-button"
+            activeOpacity={0.85}
+            onPress={() => router.push("/teams")}
+            style={[styles.quickCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          >
+            <View style={[styles.quickIcon, { backgroundColor: colors.accentBlue + "22", borderColor: colors.accentBlue }]}>
+              <Ionicons name="people-outline" size={20} color={colors.accentBlue} />
+            </View>
+            <Text style={[styles.quickTitle, { color: colors.textPrimary }]}>Manage Teams</Text>
+            <Text style={[styles.quickDesc, { color: colors.textSecondary }]} numberOfLines={2}>
+              Save reusable team rosters
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.quickRow}>
           <TouchableOpacity
             testID="quick-players-button"
@@ -153,7 +185,7 @@ export default function Dashboard() {
               Player Stats
             </Text>
             <Text style={[styles.quickDesc, { color: colors.textSecondary }]} numberOfLines={2}>
-              Lifetime runs, wickets, SR & more
+              Lifetime runs, wickets, SR &amp; more
             </Text>
           </TouchableOpacity>
 
