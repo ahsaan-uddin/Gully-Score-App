@@ -103,14 +103,24 @@ export default function SetupScreen() {
   );
   const needJoker = totalAdded > 0 && totalAdded % 2 === 1;
 
-  // Single-batter mode means we only need 1 batsman per side (no non-striker).
-  const requiredPerTeamFor11vs11 = playersPerSide;
-  const aReady = teamA.players.length >= requiredPerTeamFor11vs11;
-  const bReady = teamB.players.length >= requiredPerTeamFor11vs11;
+  // Allow start once each team has enough to bowl & bat (2 batsmen / 1 batsman in single-batter, plus at least 1 bowler on the other side).
+  const minBatPerTeam = rules.singleBatter ? 1 : 2;
+  const aReady = teamA.players.length >= minBatPerTeam;
+  const bReady = teamB.players.length >= minBatPerTeam;
   const teamAName = teamA.name.trim().length > 0;
   const teamBName = teamB.name.trim().length > 0;
   const canStart =
     teamAName && teamBName && aReady && bReady && (!needJoker || jokerName);
+
+  // Friendly reason why Start is disabled.
+  const missingReason: string | null = (() => {
+    if (!teamAName) return "Add Team A name";
+    if (!teamBName) return "Add Team B name";
+    if (!aReady) return `Add ${minBatPerTeam - teamA.players.length} more player(s) to ${teamA.name}`;
+    if (!bReady) return `Add ${minBatPerTeam - teamB.players.length} more player(s) to ${teamB.name}`;
+    if (needJoker && !jokerName) return "Pick a Joker (odd number of players)";
+    return null;
+  })();
 
   // ---- Players handlers ----
   const addPlayerToTeam = useCallback(
@@ -502,6 +512,11 @@ export default function SetupScreen() {
 
       {/* Sticky CTA */}
       <View style={[styles.footer, { backgroundColor: colors.background, borderTopColor: colors.border, paddingBottom: insets.bottom + 12 }]}>
+        {missingReason && (
+          <Text testID="start-disabled-reason" style={[styles.missingHint, { color: colors.textMuted }]}>
+            {missingReason}
+          </Text>
+        )}
         <TouchableOpacity
           testID="start-match-button"
           disabled={!canStart}
@@ -987,6 +1002,7 @@ const styles = StyleSheet.create({
     alignItems: "center", justifyContent: "center", gap: 8,
   },
   startBtnText: { fontSize: 17, fontWeight: "800", letterSpacing: 0.3 },
+  missingHint: { fontSize: 12, fontWeight: "700", textAlign: "center", marginBottom: 8 },
   modalBackdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "flex-end" },
   modalSheet: {
     borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: "88%",

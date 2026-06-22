@@ -81,9 +81,7 @@ export default function LiveScreen() {
 
   const innings = useMemo<Innings | null>(() => {
     if (!match) return null;
-    if (match.innings2 && !match.innings2.closed) return match.innings2;
-    if (match.innings2 && match.innings2.closed) return match.innings2;
-    if (match.innings1.closed && !match.innings2) return match.innings1;
+    if (match.innings2) return match.innings2;
     return match.innings1;
   }, [match]);
 
