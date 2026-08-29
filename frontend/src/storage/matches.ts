@@ -1,6 +1,6 @@
 // Match persistence helpers (offline first via AsyncStorage).
 
-import { Match } from "@/src/types/cricket";
+import { DEFAULT_RULES, Match } from "@/src/types/cricket";
 import { storage } from "@/src/utils/storage";
 import { seedDemoPlayersIfNeeded, bumpPlayers } from "@/src/storage/players_pool";
 
@@ -90,6 +90,7 @@ function demoMatch(): Match {
     tossWinnerIdx: 0,
     tossDecision: "bat",
     firstBattingIdx: 0,
+    rules: DEFAULT_RULES,
     innings1: {
       battingTeamIdx: 0,
       score: 48,

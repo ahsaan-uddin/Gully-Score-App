@@ -86,3 +86,9 @@ android-sdk/
 credentials.json
 *.key
 .credentials
+
+# Expo / React Native caches
+.expo/
+**/.expo/
+.metro-cache/
+**/.metro-cache/

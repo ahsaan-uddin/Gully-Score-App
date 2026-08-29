@@ -68,6 +68,7 @@ export interface Innings {
   currentBowlerIdx: number | null;
   previousBowlerIdx: number | null;
   yetToBat: number[]; // queue of player indices yet to bat
+  freeHitNext?: boolean;
   closed: boolean;
   closedReason?: "all_out" | "overs_done" | "target_reached";
 }
@@ -94,4 +95,7 @@ export interface Match {
   winnerIdx: 0 | 1 | null;
   resultText: string | null;
   target: number | null;
+  rules: MatchRules;
+  jokerPlayerName?: string;
+  seriesId?: string;
 }

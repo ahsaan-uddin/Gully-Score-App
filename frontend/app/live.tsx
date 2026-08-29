@@ -123,7 +123,7 @@ export default function LiveScreen() {
       setBowlerModal(true);
       return;
     }
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => { });
     setSnapshotStack((s) => {
       const next = [...s, deepClone(match)];
       // Cap undo history to avoid unbounded growth on long innings.
@@ -160,7 +160,7 @@ export default function LiveScreen() {
             const list = all.some((x) => x.id === m.id) ? all : [m, ...all];
             return attachMatchToSeries(m.seriesId!, m, list);
           })
-          .catch(() => {});
+          .catch(() => { });
       }
       setEndModal(true);
       return;
@@ -184,7 +184,7 @@ export default function LiveScreen() {
 
   const onUndo = () => {
     if (snapshotStack.length === 0) return;
-    Haptics.selectionAsync().catch(() => {});
+    Haptics.selectionAsync().catch(() => { });
     const prev = snapshotStack[snapshotStack.length - 1];
     setSnapshotStack((s) => s.slice(0, -1));
     setMatch(prev);
@@ -213,10 +213,26 @@ export default function LiveScreen() {
     nonStrikerIdx: number,
     bowlerIdx: number,
   ) => {
+    console.log("START BUTTON CLICKED");
+
     const m = deepClone(match);
-    startSecondInnings(m, strikerIdx, nonStrikerIdx, bowlerIdx);
+
+    console.log("Before:", m);
+
+    startSecondInnings(
+      m,
+      strikerIdx,
+      nonStrikerIdx,
+      bowlerIdx
+    );
+
+    console.log("After:", m);
+
     setMatch(m);
+
     setInningsBreakOpen(false);
+
+    console.log("DONE");
   };
 
   const target = match.target;
@@ -504,7 +520,7 @@ export default function LiveScreen() {
           label: battingTeam.players[idx] ?? `Player ${idx + 1}`,
         }))}
         onPick={onPickNewBatsman}
-        onClose={() => {}}
+        onClose={() => { }}
         colors={colors}
         testPrefix="newbat"
       />
@@ -518,7 +534,7 @@ export default function LiveScreen() {
           .map((name, idx) => ({ idx, label: name || `Player ${idx + 1}` }))
           .filter((o) => o.idx !== innings.previousBowlerIdx)}
         onPick={onPickNewBowler}
-        onClose={() => {}}
+        onClose={() => { }}
         colors={colors}
         testPrefix="newbowl"
       />
@@ -741,8 +757,9 @@ function PickerModal({
             </Text>
           )}
           <ScrollView
-            style={{ maxHeight: 320, marginTop: 12 }}
-            contentContainerStyle={{ gap: 8, paddingBottom: 20 }}
+            style={{ flex: 1, minHeight: 0 }}
+            contentContainerStyle={{ paddingBottom: 4 }}
+            showsVerticalScrollIndicator={false}
           >
             {options.length === 0 && (
               <Text style={[styles.placeholder, { color: colors.textMuted }]}>
@@ -784,90 +801,188 @@ function InningsBreakModal({
   colors: Palette;
 }) {
   const insets = useSafeAreaInsets();
+
   const [striker, setStriker] = useState(0);
   const [nonStriker, setNonStriker] = useState(1);
   const [bowler, setBowler] = useState(0);
 
+  if (!visible) {
+    return null;
+  }
+
   const target = match.innings1.score + 1;
+
   const secondBattingIdx = (1 - match.firstBattingIdx) as 0 | 1;
+
   const battingTeam = match.teams[secondBattingIdx];
   const bowlingTeam = match.teams[match.firstBattingIdx];
 
+  const handleStart = () => {
+    console.log("START 2ND INNINGS:", {
+      striker,
+      nonStriker,
+      bowler,
+    });
+
+    onStart(striker, nonStriker, bowler);
+  };
+
   return (
-    <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.modalBackdrop}>
-        <View
+    <View
+      style={[
+        StyleSheet.absoluteFillObject,
+        {
+          zIndex: 9999,
+          elevation: 9999,
+          backgroundColor: "rgba(0,0,0,0.75)",
+          justifyContent: "flex-end",
+        },
+      ]}
+    >
+      <View
+        style={{
+          backgroundColor: colors.background,
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+          paddingTop: 12,
+          paddingHorizontal: 20,
+          paddingBottom: Math.max(insets.bottom, 16),
+          width: "100%",
+        }}
+      >
+        {/* Handle */}
+        <View style={styles.modalHandle} />
+
+        {/* Title */}
+        <Text
           style={[
-            styles.bottomSheet,
-            { backgroundColor: colors.background, paddingBottom: insets.bottom + 16 },
+            styles.modalTitle,
+            {
+              color: colors.textPrimary,
+              marginBottom: 12,
+            },
           ]}
         >
-          <View style={styles.modalHandle} />
-          <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>
-            Innings Break
-          </Text>
-          <View
+          Innings Break
+        </Text>
+
+        {/* Target */}
+        <View
+          style={[
+            styles.targetBox,
+            {
+              backgroundColor: colors.accentBlue + "22",
+              borderColor: colors.accentBlue,
+            },
+          ]}
+        >
+          <Text
             style={[
-              styles.targetBox,
-              { backgroundColor: colors.accentBlue + "22", borderColor: colors.accentBlue },
+              styles.targetLabel,
+              { color: colors.accentBlue },
             ]}
           >
-            <Text style={[styles.targetLabel, { color: colors.accentBlue }]}>TARGET</Text>
-            <Text style={[styles.targetValue, { color: colors.textPrimary }]}>
-              {target}
-            </Text>
-            <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
-              {battingTeam.name} need {target} from {match.oversTotal * 6} balls
-            </Text>
-          </View>
+            TARGET
+          </Text>
 
-          <ScrollView style={{ maxHeight: 280 }}>
-            <PickerSection
-              label="Striker"
-              players={battingTeam.players}
-              value={striker}
-              onSelect={(i) => {
-                setStriker(i);
-                if (i === nonStriker) setNonStriker((i + 1) % match.playersPerSide);
-              }}
-              colors={colors}
-              testPrefix="break-striker"
-              disabledIdx={nonStriker}
-            />
-            <PickerSection
-              label="Non-Striker"
-              players={battingTeam.players}
-              value={nonStriker}
-              onSelect={(i) => {
-                setNonStriker(i);
-                if (i === striker) setStriker((i + 1) % match.playersPerSide);
-              }}
-              colors={colors}
-              testPrefix="break-nonstriker"
-              disabledIdx={striker}
-            />
-            <PickerSection
-              label="Opening Bowler"
-              players={bowlingTeam.players}
-              value={bowler}
-              onSelect={setBowler}
-              colors={colors}
-              testPrefix="break-bowler"
-            />
-          </ScrollView>
-
-          <TouchableOpacity
-            testID="start-innings2-button"
-            onPress={() => onStart(striker, nonStriker, bowler)}
-            style={[styles.primaryBtn, { backgroundColor: colors.primary, marginTop: 12 }]}
+          <Text
+            style={[
+              styles.targetValue,
+              { color: colors.textPrimary },
+            ]}
           >
-            <Text style={[styles.primaryBtnText, { color: colors.onPrimary }]}>
-              Start 2nd Innings
-            </Text>
-          </TouchableOpacity>
+            {target}
+          </Text>
+
+          <Text
+            style={[
+              styles.modalSubtitle,
+              {
+                color: colors.textSecondary,
+                textAlign: "center",
+              },
+            ]}
+          >
+            {battingTeam.name} need {target} from{" "}
+            {match.oversTotal * 6} balls
+          </Text>
         </View>
+
+        {/* Striker */}
+        <PickerSection
+          label="Striker"
+          players={battingTeam.players}
+          value={striker}
+          onSelect={(i) => {
+            setStriker(i);
+
+            if (i === nonStriker) {
+              setNonStriker(
+                (i + 1) % match.playersPerSide
+              );
+            }
+          }}
+          colors={colors}
+          testPrefix="break-striker"
+          disabledIdx={nonStriker}
+        />
+
+        {/* Non-Striker */}
+        <PickerSection
+          label="Non-Striker"
+          players={battingTeam.players}
+          value={nonStriker}
+          onSelect={(i) => {
+            setNonStriker(i);
+
+            if (i === striker) {
+              setStriker(
+                (i + 1) % match.playersPerSide
+              );
+            }
+          }}
+          colors={colors}
+          testPrefix="break-nonstriker"
+          disabledIdx={striker}
+        />
+
+        {/* Opening Bowler */}
+        <PickerSection
+          label="Opening Bowler"
+          players={bowlingTeam.players}
+          value={bowler}
+          onSelect={setBowler}
+          colors={colors}
+          testPrefix="break-bowler"
+        />
+
+        {/* START BUTTON */}
+        <TouchableOpacity
+          testID="start-innings2-button"
+          activeOpacity={0.8}
+          onPress={handleStart}
+          style={{
+            backgroundColor: colors.primary,
+            height: 56,
+            width: "100%",
+            borderRadius: 16,
+            alignItems: "center",
+            justifyContent: "center",
+            marginTop: 18,
+          }}
+        >
+          <Text
+            style={{
+              color: colors.onPrimary,
+              fontSize: 18,
+              fontWeight: "800",
+            }}
+          >
+            Start 2nd Innings
+          </Text>
+        </TouchableOpacity>
       </View>
-    </Modal>
+    </View>
   );
 }
 
@@ -1047,6 +1162,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.6)",
     justifyContent: "flex-end",
+    alignItems: "stretch",
   },
   bottomSheet: {
     borderTopLeftRadius: 24,
@@ -1054,7 +1170,9 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingHorizontal: 20,
     paddingBottom: 24,
-    maxHeight: "88%",
+    height: "92%",
+    width: "100%",
+    overflow: "hidden",
   },
   modalHandle: {
     width: 40,
@@ -1084,13 +1202,13 @@ const styles = StyleSheet.create({
   },
   pickerRowText: { fontSize: 15, fontWeight: "700" },
   primaryBtn: {
-    height: 52,
-    borderRadius: 14,
+    height: 60,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-    flex: 1,
+    flex: 0,
   },
-  primaryBtnText: { fontSize: 16, fontWeight: "800" },
+  primaryBtnText: { fontSize: 18, fontWeight: "800" },
   secondaryBtn: {
     height: 52,
     borderRadius: 14,
@@ -1103,8 +1221,10 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderRadius: 14,
     borderWidth: 1,
-    padding: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     alignItems: "center",
+    flexShrink: 0,
   },
   targetLabel: { fontSize: 12, fontWeight: "900", letterSpacing: 1.5 },
   targetValue: { fontSize: 48, fontWeight: "900", letterSpacing: -1, marginTop: 4 },
