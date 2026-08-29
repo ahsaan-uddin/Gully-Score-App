@@ -560,12 +560,20 @@ export default function LiveScreen() {
             </Text>
             <TouchableOpacity
               testID="view-result-button"
+              activeOpacity={0.8}
               onPress={async () => {
                 await setCurrentMatchId(null);
                 setEndModal(false);
                 router.replace({ pathname: "/result", params: { id: match.id } });
               }}
-              style={[styles.primaryBtn, { backgroundColor: colors.primary, marginTop: 18 }]}
+              style={[
+                styles.primaryBtn,
+                {
+                  backgroundColor: colors.primary,
+                  marginTop: 18,
+                  minWidth: 180,
+                },
+              ]}
             >
               <Text style={[styles.primaryBtnText, { color: colors.onPrimary }]}>
                 View Result
