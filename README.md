@@ -166,47 +166,48 @@ An Android device or Android emulator for Android testing
 
 Clone the repository:
 
-git clone git@github.com:ahsaan-uddin/Gully-Score-App.git
-
+```git clone https://github.com/ahsaan-uddin/Gully-Score-App.git
+```
 Enter the project:
 
-cd Gully-Score-App/frontend
-
+```cd Gully-Score-App/frontend
+```
 Install dependencies:
 
-npm install
+```npm install
+```
 ## ▶️ Run the Application
 
 Start the Expo development server:
 
-npx expo start
-
+```npx expo start
+```
 You can then open the application using an available development target such as an Android device or emulator.
 
 ## 🧹 Start With a Clean Metro Cache
 
 If the application behaves unexpectedly during development, start Expo with a cleared Metro cache:
 
-npx expo start --clear
-
+```npx expo start --clear
+```
 You can also remove local Expo and Metro caches manually:
 
-rm -rf .expo .metro-cache
-
+```rm -rf .expo .metro-cache
+```
 These are temporary development files and should not be committed to Git.
 
 ## 🩺 Check the Expo Project
 
 Before creating an Android build, run:
 
-npx expo-doctor
-
+```npx expo-doctor
+```
 The project should pass the Expo configuration and dependency checks.
 
 You can also check the Git working tree:
 
-git status --short
-
+```git status --short
+```
 A clean working tree produces no output.
 
 ## 🤖 Android APK
@@ -217,8 +218,8 @@ The preview EAS profile is configured to create an installable APK.
 
 From the frontend directory:
 
-npx eas build --platform android --profile preview
-
+```npx eas build --platform android --profile preview
+```
 The generated APK can be installed directly on an Android device for testing.
 
 APK Naming Convention
@@ -318,28 +319,28 @@ Useful Git Commands
 
 Check the working tree:
 
-git status --short
-
+```git status --short
+```
 Review changes:
 
-git diff
-
+```git diff
+```
 Stage changes:
 
-git add -A
-
+```git add -A
+```
 Review staged changes:
 
-git diff --cached
-
+```git diff --cached
+```
 Create a commit:
 
-git commit -m "Describe the change"
-
+```git commit -m "Describe the change"
+```
 Push to GitHub:
 
-git push origin main
-
+```git push origin main
+```
 ## 🔐 Security
 
 Never commit sensitive information to the repository.
