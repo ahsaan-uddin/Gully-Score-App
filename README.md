@@ -165,48 +165,48 @@ An Android device or Android emulator for Android testing
 ## 📥 Installation
 
 Clone the repository:
-
-```git clone https://github.com/ahsaan-uddin/Gully-Score-App.git
+```bash
+git clone https://github.com/ahsaan-uddin/Gully-Score-App.git
 ```
 Enter the project:
-
-```cd Gully-Score-App/frontend
+```bash
+cd Gully-Score-App/frontend
 ```
 Install dependencies:
-
-```npm install
+```bash
+npm install
 ```
 ## ▶️ Run the Application
 
 Start the Expo development server:
-
-```npx expo start
+```bash
+npx expo start
 ```
 You can then open the application using an available development target such as an Android device or emulator.
 
 ## 🧹 Start With a Clean Metro Cache
 
 If the application behaves unexpectedly during development, start Expo with a cleared Metro cache:
-
-```npx expo start --clear
+```bash
+npx expo start --clear
 ```
 You can also remove local Expo and Metro caches manually:
-
-```rm -rf .expo .metro-cache
+```bash
+rm -rf .expo .metro-cache
 ```
 These are temporary development files and should not be committed to Git.
 
 ## 🩺 Check the Expo Project
 
 Before creating an Android build, run:
-
-```npx expo-doctor
+```bash
+npx expo-doctor
 ```
 The project should pass the Expo configuration and dependency checks.
 
 You can also check the Git working tree:
-
-```git status --short
+```bash
+git status --short
 ```
 A clean working tree produces no output.
 
@@ -217,8 +217,8 @@ Gully Score uses Expo Application Services (EAS) for Android builds.
 The preview EAS profile is configured to create an installable APK.
 
 From the frontend directory:
-
-```npx eas build --platform android --profile preview
+```bash
+npx eas build --platform android --profile preview
 ```
 The generated APK can be installed directly on an Android device for testing.
 
@@ -318,29 +318,29 @@ Test APK on Android
 Useful Git Commands
 
 Check the working tree:
-
-```git status --short
+```bash
+git status --short
 ```
 Review changes:
-
-```git diff
+```bash
+git diff
 ```
 Stage changes:
-
-```git add -A
+```bash
+git add -A
 ```
 Review staged changes:
-
-```git diff --cached
+```bash
+git diff --cached
 ```
 Create a commit:
-
-```git commit -m "Describe the change"
+```bash
+git commit -m "Describe the change"
 ```
 Push to GitHub:
-
-```git push origin main
-
+```bash
+git push origin main
+```
 ## 🔐 Security
 
 Never commit sensitive information to the repository.
