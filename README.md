@@ -340,7 +340,7 @@ Create a commit:
 Push to GitHub:
 
 ```git push origin main
-```
+
 ## 🔐 Security
 
 Never commit sensitive information to the repository.
