@@ -151,7 +151,9 @@ Gully-Score-App/
 ├── .gitignore
 └── README.md
 
-🚀 Getting Started
+---
+
+## 🚀 Getting Started
 Requirements
 
 Make sure the following are installed:
@@ -160,7 +162,7 @@ Node.js
 npm
 Git
 An Android device or Android emulator for Android testing
-📥 Installation
+## 📥 Installation
 
 Clone the repository:
 
@@ -173,7 +175,7 @@ cd Gully-Score-App/frontend
 Install dependencies:
 
 npm install
-▶️ Run the Application
+## ▶️ Run the Application
 
 Start the Expo development server:
 
@@ -181,7 +183,7 @@ npx expo start
 
 You can then open the application using an available development target such as an Android device or emulator.
 
-🧹 Start With a Clean Metro Cache
+## 🧹 Start With a Clean Metro Cache
 
 If the application behaves unexpectedly during development, start Expo with a cleared Metro cache:
 
@@ -193,7 +195,7 @@ rm -rf .expo .metro-cache
 
 These are temporary development files and should not be committed to Git.
 
-🩺 Check the Expo Project
+## 🩺 Check the Expo Project
 
 Before creating an Android build, run:
 
@@ -207,7 +209,7 @@ git status --short
 
 A clean working tree produces no output.
 
-🤖 Android APK
+## 🤖 Android APK
 
 Gully Score uses Expo Application Services (EAS) for Android builds.
 
@@ -227,7 +229,8 @@ Future versions can follow the same format:
 GullyScore-v1.0.1-Android.apk
 GullyScore-v1.1.0-Android.apk
 GullyScore-v2.0.0-Android.apk
-⚙️ EAS Build Profiles
+
+## ⚙️ EAS Build Profiles
 
 The project currently contains three EAS build profiles.
 
@@ -246,7 +249,8 @@ Production
 Used for production builds:
 
 production
-📱 Android Configuration
+
+## 📱 Android Configuration
 
 Current Android application package:
 
@@ -255,7 +259,8 @@ com.ahsaan24.frontend
 Current application version:
 
 1.0.0
-🧪 Testing
+
+## 🧪 Testing
 
 Before committing major changes, test the main scoring flow:
 
@@ -289,7 +294,8 @@ Match result
 Match history
 Theme switching
 Saved match data
-🔄 Development Workflow
+
+## 🔄 Development Workflow
 
 A recommended workflow for making changes:
 
@@ -333,7 +339,8 @@ git commit -m "Describe the change"
 Push to GitHub:
 
 git push origin main
-🔐 Security
+
+## 🔐 Security
 
 Never commit sensitive information to the repository.
 
@@ -356,7 +363,7 @@ id_ed25519
 
 Always review changes before pushing them to GitHub.
 
-🚫 Files That Should Not Be Committed
+## 🚫 Files That Should Not Be Committed
 
 Development dependencies, caches, and temporary files should remain outside Git.
 
@@ -370,7 +377,7 @@ build/
 
 These files are covered by the repository's .gitignore where applicable.
 
-📌 Current Status
+## 📌 Current Status
 
 Version: 1.0.0
 
@@ -382,7 +389,7 @@ Android package: com.ahsaan24.frontend
 
 Build status: Working Android APK successfully built and tested.
 
-🗺️ Roadmap
+## 🗺️ Roadmap
 
 Potential future improvements include:
 
@@ -395,7 +402,8 @@ Automated GitHub checks
 Automated Android builds
 GitHub release automation
 Additional platform improvements
-📸 Screenshots
+
+## 📸 Screenshots
 
 Screenshots of the application will be added here.
 
@@ -410,7 +418,8 @@ Match result
 Scorecard
 Match history
 Players and teams
-📦 Releases
+
+## 📦 Releases
 
 Stable Android builds will be published through GitHub Releases when appropriate.
 
@@ -418,6 +427,7 @@ Example:
 
 GullyScore v1.0.0
 └── GullyScore-v1.0.0-Android.apk
-📄 License
+
+## 📄 License
 
 License information will be added when the project license is finalized.
