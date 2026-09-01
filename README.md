@@ -150,7 +150,7 @@ Gully-Score-App/
 ├── test_result.md
 ├── .gitignore
 └── README.md
-
+```
 ---
 
 ## 🚀 Getting Started
